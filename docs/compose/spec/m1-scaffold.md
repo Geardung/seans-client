@@ -1,14 +1,20 @@
 ---
 feature: m1-scaffold
-status: in-progress
+status: delivered
 updated: 2026-07-16
 branch: main
-commits: # empty while in progress
+commits: 93af418..adc0b8c
 ---
 
 # M1 Scaffold
 
 ## Report
+
+**What was built** — A runnable Tauri 2 + React 19 + TypeScript + Vite Windows client skeleton named Seans (`ru.tedeshi.seans`, exe `seans`, v0.1.0). The shell opens a 1280×800 window (min 960×600), registers `seans://`, and collapses a second launch via `tauri-plugin-single-instance`. Pure-TS deep-link parser handles home, `auth/callback` (tokens returned in memory only), and `room/{code}` with `^[A-Z2-9]{8}$`, including Windows triple-slash forms. Cold-start URLs are read with `getCurrent()` in addition to `onOpenUrl`. Frontend has a hash router (`#/`, `#/login`, `#/room/:code`), Russian placeholder screens with loading/empty/error slots, and `src/design/tokens.css` (light/dark, system). PE VersionInfo is set in `build.rs` via `winresource` for later Authenticode.
+
+**Verification** — `npm run typecheck` PASS · `npm test` PASS (35 tests: deepLink 18, routeResolver 10, tauriConf 7) · `npm run build` PASS · `npm run tauri build` FAIL `link.exe` not found (MSVC/Build Tools absent in this environment; config schema validation passes). Exact command documented in `scripts/verify.ps1`.
+
+**Journey log** — (1) `bundle.windows.versionInfo` is not in the Tauri 2 config schema — PE metadata goes in `build.rs` + `winresource`. (2) Room code contract is `A-Z2-9` (I/L/O valid); a Crockford-style test was corrected to match the brief. (3) Tauri 2 deep-link cold-start requires `getCurrent()` after mount; `onOpenUrl` alone drops launch URLs. (4) Subagents cannot run processes in this sandbox — orchestrator must own `npm`/`cargo` verification. (5) Linked `git worktree add` is blocked; user consented to work on `main` in the primary checkout.
 
 ## [S1] Problem
 
@@ -75,9 +81,9 @@ The Seans Windows client has no code yet. Before auth, player, or rooms can land
 
 ## Tasks
 
-- [ ] T1: Scaffold Tauri 2 + React/TS/Vite in repo root with `src/` layout and npm scripts — acceptance: `npm install` and `npm run build` succeed (covers: S2)
-- [ ] T2: Deep-link + single-instance shell (parse `seans://`, forward second launch, focus window) — acceptance: unit tests for parser pass; `tauri.conf.json` lists both plugins (covers: S2)
-- [ ] T3: Frontend shell — placeholders, hash router, tokens.css light/dark, Russian strings — acceptance: `npm run build` type-checks; screens render empty/loading/error slots (covers: S2)
-- [ ] T4: M1 unit tests (deep-link parser, route resolver, config identity) — acceptance: `npm test` green (covers: S2; depends: T1, T2)
-- [ ] T5: README covering product, prerequisites, dev/build, deep links — acceptance: README present and matches actual scripts (covers: S1)
-- [ ] T6: Smoke build — acceptance: `npm run build` PASS; `npm run tauri build` PASS or documented env-blocker (MSVC missing) with exact command (covers: S2; depends: T1)
+- [x] T1: Scaffold Tauri 2 + React/TS/Vite in repo root with `src/` layout and npm scripts — acceptance: `npm install` and `npm run build` succeed (covers: S2)
+- [x] T2: Deep-link + single-instance shell (parse `seans://`, forward second launch, focus window) — acceptance: unit tests for parser pass; `tauri.conf.json` lists both plugins (covers: S2)
+- [x] T3: Frontend shell — placeholders, hash router, tokens.css light/dark, Russian strings — acceptance: `npm run build` type-checks; screens render empty/loading/error slots (covers: S2)
+- [x] T4: M1 unit tests (deep-link parser, route resolver, config identity) — acceptance: `npm test` green (covers: S2; depends: T1, T2)
+- [x] T5: README covering product, prerequisites, dev/build, deep links — acceptance: README present and matches actual scripts (covers: S1)
+- [x] T6: Smoke build — acceptance: `npm run build` PASS; `npm run tauri build` PASS or documented env-blocker (MSVC missing) with exact command (covers: S2; depends: T1)
