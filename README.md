@@ -53,7 +53,7 @@ Or run the full M1 gate in one go: `powershell -ExecutionPolicy Bypass -File scr
 
 Installer output: `src-tauri/target/release/bundle/`.
 
-VersionInfo (CompanyName, ProductName, FileVersion, ProductVersion) is set in `src-tauri/build.rs` via `winresource` so the binary is ready for Authenticode signing later. Do not pack with UPX or any runtime DLL downloader — antivirus false positives.
+VersionInfo (CompanyName=`bundle.publisher`, ProductName, FileVersion, ProductVersion) is embedded by `tauri-build` from `src-tauri/tauri.conf.json` so the binary is ready for Authenticode signing later. Do not pack with UPX or any runtime DLL downloader — antivirus false positives.
 
 ## Deep links
 

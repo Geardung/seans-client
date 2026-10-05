@@ -65,13 +65,11 @@ describe("tauri.conf.json identity", () => {
   });
 
   it("sets Windows VersionInfo fields for later Authenticode", () => {
+    // tauri-build embeds PE VersionInfo from these fields:
+    // CompanyName=bundle.publisher, ProductName, File/ProductVersion=version.
     expect(conf.bundle?.publisher).toBe("tedeshi");
     expect(conf.bundle?.copyright).toBe("tedeshi");
-    const buildRs = readFileSync(join(root, "src-tauri", "build.rs"), "utf8");
-    expect(buildRs).toContain('set("CompanyName", "tedeshi")');
-    expect(buildRs).toContain('set("ProductName", "Seans")');
-    expect(buildRs).toContain('set("FileVersion", "0.1.0")');
-    expect(buildRs).toContain('set("ProductVersion", "0.1.0")');
-    expect(buildRs).toContain('set("LegalCopyright", "tedeshi")');
+    expect(conf.productName).toBe("Seans");
+    expect(conf.version).toBe("0.1.0");
   });
 });

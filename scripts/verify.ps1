@@ -1,6 +1,7 @@
 # M1 verification script. Run from repo root in PowerShell:
 #   powershell -ExecutionPolicy Bypass -File scripts\verify.ps1
-# Expected Node 20+, npm, and (for the last step) MSVC + Rust.
+# Expected Node 20+, npm, Rust, and MSVC (for the last step).
+# If cl/link are not on PATH, call vcvars64.bat first (VS Build Tools / VS Community).
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot

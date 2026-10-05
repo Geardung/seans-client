@@ -41,13 +41,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![])
         .build(tauri::generate_context!())
         .expect("error while building Seans")
-        .run(|app_handle, event| {
-            if let tauri::RunEvent::Opened { urls } = event {
-                let urls: Vec<String> = urls.iter().map(|u| u.to_string()).collect();
-                if !urls.is_empty() {
-                    let _ = app_handle.emit("deep-link://new-url", urls);
-                }
-                focus_main_window(app_handle);
-            }
-        });
+        // Windows deep-link URLs arrive via `deep-link://new-url` (plugin + single-instance).
+        // `RunEvent::Opened` is macOS/iOS/Android only and is handled inside the plugin.
+        .run(|_, _| {});
 }
