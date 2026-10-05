@@ -85,7 +85,17 @@ export default function App() {
 
     (async () => {
       try {
-        const { onOpenUrl } = await import("@tauri-apps/plugin-deep-link");
+        const { getCurrent, onOpenUrl } = await import(
+          "@tauri-apps/plugin-deep-link"
+        );
+
+        // Cold start: URLs that launched the app are captured before JS mounts.
+        const startupUrls = await getCurrent();
+        if (startupUrls) {
+          for (const url of startupUrls) handleDeepLinkUrl(url);
+        }
+
+        // Warm path: URLs delivered while the app is already running.
         const stop = await onOpenUrl((urls) => {
           for (const url of urls) handleDeepLinkUrl(url);
         });

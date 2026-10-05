@@ -10,6 +10,20 @@ describe("parseDeepLink", () => {
     expect(parseDeepLink("seans:///")).toEqual({ kind: "home" });
   });
 
+  it("parses triple-slash auth callback and room forms", () => {
+    expect(
+      parseDeepLink("seans:///auth/callback?access_token=tok&state=st"),
+    ).toEqual({
+      kind: "authCallback",
+      accessToken: "tok",
+      state: "st",
+    });
+    expect(parseDeepLink("seans:///room/ABCD2345")).toEqual({
+      kind: "room",
+      roomCode: "ABCD2345",
+    });
+  });
+
   it("parses auth callback with tokens", () => {
     expect(
       parseDeepLink("seans://auth/callback?access_token=tok123&state=st456"),

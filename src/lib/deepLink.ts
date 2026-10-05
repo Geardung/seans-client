@@ -35,11 +35,19 @@ export function parseDeepLink(raw: string): DeepLinkPayload | null {
 
   if (url.protocol !== "seans:") return null;
 
-  // `seans://` → hostname "", pathname "/"
-  // `seans://auth/callback` → hostname "auth", pathname "/callback"
-  // `seans://room/ABCD2345` → hostname "room", pathname "/ABCD2345"
-  const host = url.hostname.toLowerCase();
-  const segments = url.pathname.split("/").filter((s) => s.length > 0);
+  // Canonical forms:
+  //   seans://                 → hostname "", pathname "/"
+  //   seans://auth/callback    → hostname "auth", pathname "/callback"
+  //   seans://room/CODE        → hostname "room", pathname "/CODE"
+  // Windows may also deliver triple-slash forms where the host is empty:
+  //   seans:///auth/callback   → hostname "", pathname "/auth/callback"
+  //   seans:///room/CODE       → hostname "", pathname "/room/CODE"
+  let host = url.hostname.toLowerCase();
+  let segments = url.pathname.split("/").filter((s) => s.length > 0);
+  if (host === "" && segments.length > 0) {
+    host = segments[0].toLowerCase();
+    segments = segments.slice(1);
+  }
 
   if (host === "" && segments.length === 0) {
     return { kind: "home" };

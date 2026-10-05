@@ -12,7 +12,7 @@ fn focus_main_window(app: &tauri::AppHandle) {
 fn urls_from_argv(argv: &[String]) -> Vec<String> {
     argv
         .iter()
-        .filter(|arg| arg.starts_with("seans://"))
+        .filter(|arg| arg.to_lowercase().starts_with("seans://"))
         .cloned()
         .collect()
 }
