@@ -1,11 +1,14 @@
 import type { ReactNode } from "react";
+import { EmptyState, ErrorState, Spinner } from "./primitives";
 
-/** Shared loading / empty / error slots used by every M1 screen. */
+/**
+ * Shared loading / empty / error slots used by M1 screens.
+ * Thin wrappers over the M3 primitives (same Russian defaults).
+ */
 export function LoadingSlot({ label = "Загрузка…" }: { label?: string }) {
   return (
-    <div className="slot slot-loading" role="status" aria-live="polite">
-      <span className="slot-spinner" aria-hidden="true" />
-      <span>{label}</span>
+    <div className="slot slot-loading">
+      <Spinner label={label} />
     </div>
   );
 }
@@ -17,12 +20,7 @@ export function EmptySlot({
   title?: string;
   description?: string;
 }) {
-  return (
-    <div className="slot slot-empty">
-      <strong>{title}</strong>
-      <p>{description}</p>
-    </div>
-  );
+  return <EmptyState title={title} description={description} />;
 }
 
 export function ErrorSlot({
@@ -35,15 +33,7 @@ export function ErrorSlot({
   onRetry?: () => void;
 }) {
   return (
-    <div className="slot slot-error" role="alert">
-      <strong>{title}</strong>
-      <p>{description}</p>
-      {onRetry ? (
-        <button type="button" className="btn" onClick={onRetry}>
-          Повторить
-        </button>
-      ) : null}
-    </div>
+    <ErrorState title={title} description={description} onRetry={onRetry} />
   );
 }
 

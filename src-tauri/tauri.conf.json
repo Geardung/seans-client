@@ -37,7 +37,10 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": {
+      "resources/mpv/*": "mpv/"
+    }
   },
   "plugins": {
     "deep-link": {
@@ -45,6 +48,12 @@
         "schemes": ["seans"]
       }
     },
-    "single-instance": {}
+    "single-instance": {},
+    "updater": {
+      "endpoints": [
+        "https://seans.tedeshi.ru/updates/{{target}}/{{current_version}}"
+      ],
+      "pubkey": ""
+    }
   }
 }

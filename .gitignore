@@ -6,3 +6,7 @@ src-tauri/gen/
 .DS_Store
 .vscode/
 .idea/
+# Bundled libmpv binaries (fetched at build time by scripts/fetch-mpv.ps1).
+src-tauri/resources/mpv/*.dll
+src-tauri/resources/mpv/*.exe
+src-tauri/resources/mpv/*.txt

@@ -1,0 +1,337 @@
+/**
+ * Player overlay styles (M7). Token-only; no new design dependencies.
+ * The video pixels themselves are drawn by libmpv into a Win32 child window
+ * behind the webview — this sheet styles the HTML chrome above it.
+ */
+
+.player-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+.player-surface-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: var(--bg);
+  padding: var(--space-8);
+}
+
+/* ------------------------------------------------------------- controls */
+
+.player-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.28) 70%,
+    transparent 100%
+  );
+  color: #f5f7fa;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+  z-index: 2;
+}
+
+.player-controls-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.player-controls .btn {
+  color: #f5f7fa;
+  border-color: transparent;
+}
+
+.player-controls .btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.player-controls .btn:disabled {
+  opacity: 0.45;
+}
+
+/* Seek rail */
+
+.player-seek {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: var(--space-1);
+}
+
+.player-seek:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.player-seek-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+}
+
+.player-seek-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+/* Row layout */
+
+.player-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.player-controls-left,
+.player-controls-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.player-time {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  opacity: 0.92;
+  min-width: 7.5em;
+}
+
+.player-volume {
+  width: 96px;
+  accent-color: var(--accent);
+}
+
+.player-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+}
+
+.player-select-label {
+  opacity: 0.85;
+}
+
+.player-select {
+  background: rgba(0, 0, 0, 0.35);
+  color: #f5f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: var(--text-xs);
+  max-width: 180px;
+}
+
+.player-select:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+.player-hwdec {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  opacity: 0.75;
+  text-align: right;
+}
+
+/* --------------------------------------------------------- TheIntroDB (M8) */
+
+.player-seek-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.player-seek-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1px;
+  border-radius: 1px;
+  pointer-events: auto;
+  cursor: help;
+  opacity: 0.9;
+}
+
+.player-seek-marker-teal {
+  background: #14b8a6;
+}
+
+.player-seek-marker-blue {
+  background: #3b82f6;
+}
+
+.player-seek-marker-amber {
+  background: #f59e0b;
+}
+
+.player-seek-marker-gray {
+  background: #9ca3af;
+}
+
+.player-skip-row {
+  position: absolute;
+  right: var(--space-4);
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: 3;
+}
+
+.player-skip-btn {
+  background: rgba(15, 18, 24, 0.82);
+  color: #f5f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  white-space: nowrap;
+}
+
+.player-skip-btn:hover {
+  background: rgba(15, 18, 24, 0.95);
+}
+
+.player-chapters {
+  position: relative;
+  display: inline-flex;
+}
+
+.player-chapters-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  min-width: 180px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  background: rgba(15, 18, 24, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  z-index: 4;
+}
+
+.player-chapters-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #f5f7fa;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  text-align: left;
+}
+
+.player-chapters-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.player-chapters-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.player-chapters-label {
+  flex: 1;
+}
+
+.player-chapters-time {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+/* Credits rating popup — overlay, does not pause playback */
+
+.credits-popup {
+  position: absolute;
+  right: var(--space-4);
+  bottom: 170px;
+  width: min(320px, calc(100% - var(--space-8)));
+  padding: var(--space-3);
+  background: rgba(15, 18, 24, 0.92);
+  color: #f5f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  z-index: 5;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.credits-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.credits-popup-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.credits-popup-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.credits-popup-text {
+  width: 100%;
+  resize: vertical;
+  background: rgba(0, 0, 0, 0.35);
+  color: #f5f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: var(--text-xs);
+}
+
+.credits-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.credits-popup .btn {
+  color: #f5f7fa;
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.credits-popup .btn-primary {
+  color: #fff;
+  border-color: transparent;
+}

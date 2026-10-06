@@ -1,25 +1,29 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { AccountScreen } from "./screens/AccountScreen";
+import { HistoryScreen } from "./screens/HistoryScreen";
 import { HomeScreen } from "./screens/HomeScreen";
+import { LibraryScreen } from "./screens/LibraryScreen";
 import { LoginScreen } from "./screens/LoginScreen";
+import { MediaScreen } from "./screens/MediaScreen";
+import { PlayerScreen } from "./screens/PlayerScreen";
 import { RoomScreen } from "./screens/RoomScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
+import { TasksScreen } from "./screens/TasksScreen";
 import { parseDeepLink } from "./lib/deepLink";
 import {
   getCurrentHashRoute,
+  matchMediaRoute,
+  matchPlayerRoute,
   matchRoomRoute,
   resolveRoute,
+  ROUTES,
 } from "./lib/routeResolver";
-
-/** In-memory only token relay. Tokens must never be written to disk/localStorage in M1. */
-export type AuthCallbackDetail = {
-  accessToken: string | null;
-  state: string | null;
-};
-
-declare global {
-  interface WindowEventMap {
-    "seans:auth-callback": CustomEvent<AuthCallbackDetail>;
-  }
-}
+import { AuthProvider, useAuth } from "./features/auth";
+import type { AuthCallbackDetail } from "./features/auth";
+import { UpdaterProvider } from "./features/updater";
+import { LoadingSlot } from "./design/slots";
+import { AppShell } from "./design/AppShell";
 
 function emitAuthCallback(detail: AuthCallbackDetail): void {
   window.dispatchEvent(
@@ -38,6 +42,7 @@ function handleDeepLinkUrl(raw: string): void {
   if (!payload) return; // malformed / unknown — ignore, no crash
 
   if (payload.kind === "authCallback") {
+    // Tokens are relayed in memory only (AuthProvider consumes this event).
     emitAuthCallback({
       accessToken: payload.accessToken,
       state: payload.state,
@@ -59,25 +64,65 @@ function useHashRoute(): string {
   return route;
 }
 
-/**
- * Minimal hash router:
- *   #/            home
- *   #/login       auth gate
- *   #/room/:code  room placeholder
- * Anything else renders home.
- */
-function Router() {
-  const route = useHashRoute();
-
-  if (route === "#/login") return <LoginScreen />;
-
+/** Map a hash route to its screen body (no chrome). Unknown routes fall back to home. */
+function renderScreen(route: string): ReactNode {
   const roomCode = matchRoomRoute(route);
   if (roomCode) return <RoomScreen code={roomCode} />;
+
+  const mediaId = matchMediaRoute(route);
+  if (mediaId) return <MediaScreen id={mediaId} />;
+
+  const fileId = matchPlayerRoute(route);
+  if (fileId) return <PlayerScreen fileId={fileId} />;
+
+  if (route === ROUTES.library) return <LibraryScreen />;
+  if (route === ROUTES.tasks) return <TasksScreen />;
+  if (route === ROUTES.history) return <HistoryScreen />;
+  if (route === ROUTES.settings) return <SettingsScreen />;
+  if (route === ROUTES.account) return <AccountScreen />;
 
   return <HomeScreen />;
 }
 
-export default function App() {
+/**
+ * Hash router, gated on auth:
+ *   #/                home
+ *   #/login           auth gate (always reachable — also serves account/logout)
+ *   #/library         library placeholder
+ *   #/tasks           tasks placeholder
+ *   #/history         continue-watching history (M9)
+ *   #/settings        settings placeholder
+ *   #/account         account placeholder
+ *   #/media/:id       media detail placeholder
+ *   #/player/:fileId  player placeholder (full-bleed, no left nav)
+ *   #/room/:code      room placeholder (full-bleed, no left nav)
+ * Anything else renders home. Anonymous users only see #/login.
+ */
+function Router() {
+  const route = useHashRoute();
+  const { status } = useAuth();
+
+  useEffect(() => {
+    if (status === "anonymous" && route !== ROUTES.login) {
+      navigate(ROUTES.login);
+    }
+  }, [status, route]);
+
+  if (status === "loading") {
+    return <LoadingSlot label="Проверка сессии…" />;
+  }
+
+  if (route === ROUTES.login) return <LoginScreen />;
+
+  if (status === "anonymous") {
+    // Redirect effect above sends the user to login; avoid flashing home.
+    return <LoadingSlot label="Проверка сессии…" />;
+  }
+
+  return <AppShell route={route}>{renderScreen(route)}</AppShell>;
+}
+
+function Shell() {
   useEffect(() => {
     // Deep links delivered while the app is running (Tauri deep-link plugin).
     let unlisten: (() => void) | undefined;
@@ -119,4 +164,15 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <AuthProvider>
+      <UpdaterProvider>
+        <Shell />
+      </UpdaterProvider>
+    </AuthProvider>
+  );
+}
+
 export { handleDeepLinkUrl };
+export type { AuthCallbackDetail };

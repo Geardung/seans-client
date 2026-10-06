@@ -22,8 +22,25 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-deep-link = "2"
 tauri-plugin-single-instance = "2"
+# M11: seamless updates (check/download/install) + process relaunch.
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# JWT storage in the Windows Credential Manager (normal crate dependency).
+keyring = { version = "2.3", features = ["platform-windows"] }
+# Open the system browser for web OAuth (no plugin permissions needed).
+open = "5"
+# M7 player: dynamic LoadLibrary of the bundled libmpv-2.dll (local files only).
+libloading = "0.8"
+# Win32 child window used as the mpv `wid` render target.
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_LibraryLoader",
+] }
+# Main-window HWND for the mpv host (also available via tauri's window handle).
+raw-window-handle = "0.6"
 
 [profile.release]
 codegen-units = 1

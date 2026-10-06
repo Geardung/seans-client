@@ -5,6 +5,13 @@ import { parseDeepLink } from "./deepLink";
 export const ROUTES = {
   home: "#/",
   login: "#/login",
+  library: "#/library",
+  tasks: "#/tasks",
+  history: "#/history",
+  settings: "#/settings",
+  account: "#/account",
+  media: (id: string | number) => `#/media/${id}`,
+  player: (fileId: string | number) => `#/player/${fileId}`,
   room: (code: string) => `#/room/${code}`,
 } as const;
 
@@ -39,4 +46,24 @@ export function getCurrentHashRoute(): string {
 export function matchRoomRoute(hash: string): string | null {
   const m = /^#\/room\/([A-Z2-9]{8})$/.exec(hash);
   return m ? m[1] : null;
+}
+
+/** Extract the media id from a `#/media/{id}` hash route, if any. */
+export function matchMediaRoute(hash: string): string | null {
+  const m = /^#\/media\/([^/]+)$/.exec(hash);
+  return m ? m[1] : null;
+}
+
+/** Extract the file id from a `#/player/{fileId}` hash route, if any. */
+export function matchPlayerRoute(hash: string): string | null {
+  const m = /^#\/player\/([^/]+)$/.exec(hash);
+  return m ? m[1] : null;
+}
+
+/**
+ * Full-bleed routes render without the left nav (player, room).
+ * Login is the auth gate and is handled separately by the router.
+ */
+export function isFullBleedRoute(hash: string): boolean {
+  return matchPlayerRoute(hash) !== null || matchRoomRoute(hash) !== null;
 }

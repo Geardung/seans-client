@@ -1,3 +1,6 @@
+mod commands;
+mod player;
+
 use tauri::{Emitter, Manager};
 
 /// Focus and raise the main window (single-instance / deep-link wake-up).
@@ -30,15 +33,49 @@ pub fn run() {
             focus_main_window(app);
         }))
         .plugin(tauri_plugin_deep_link::init())
+        // M11: updater + process relaunch (JS drives check/download; relaunch on demand).
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             #[cfg(desktop)]
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 app.deep_link().register_all()?;
             }
+            // Keep the mpv `wid` child window sized to the main window client area.
+            if let Some(window) = app.get_webview_window("main") {
+                window.on_window_event(|event| {
+                    if let tauri::WindowEvent::Resized(_) | tauri::WindowEvent::ScaleFactorChanged { .. } = event {
+                        player::session::sync_host_size();
+                    }
+                });
+            }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![
+            commands::save_token,
+            commands::load_token,
+            commands::clear_token,
+            commands::open_url,
+            commands::start_loopback_auth,
+            commands::stop_loopback_auth,
+            player::player_open,
+            player::player_play,
+            player::player_pause,
+            player::player_toggle_pause,
+            player::player_seek,
+            player::player_set_speed,
+            player::player_set_volume,
+            player::player_set_mute,
+            player::player_set_audio_track,
+            player::player_set_subtitle_track,
+            player::player_list_tracks,
+            player::player_set_fullscreen,
+            player::player_toggle_fullscreen,
+            player::player_get_state,
+            player::player_destroy,
+            player::player_sync_size,
+        ])
         .build(tauri::generate_context!())
         .expect("error while building Seans")
         // Windows deep-link URLs arrive via `deep-link://new-url` (plugin + single-instance).

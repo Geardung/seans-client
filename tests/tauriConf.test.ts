@@ -57,6 +57,20 @@ describe("tauri.conf.json identity", () => {
     expect(Object.keys(conf.plugins)).toContain("single-instance");
   });
 
+  it("registers the updater plugin with the Seans update endpoint", () => {
+    expect(Object.keys(conf.plugins)).toContain("updater");
+    const updater = conf.plugins["updater"] as {
+      endpoints?: string[];
+      pubkey?: string;
+    };
+    expect(Array.isArray(updater.endpoints)).toBe(true);
+    expect(updater.endpoints?.[0]).toBe(
+      "https://seans.tedeshi.ru/updates/{{target}}/{{current_version}}",
+    );
+    // pubkey is a placeholder until a release signing key exists (schema-valid string).
+    expect(typeof updater.pubkey).toBe("string");
+  });
+
   it("registers the seans scheme for desktop deep links", () => {
     const deepLink = conf.plugins["deep-link"] as {
       desktop?: { schemes?: string[] };

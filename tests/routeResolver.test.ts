@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { parseDeepLink } from "../src/lib/deepLink";
 import {
+  isFullBleedRoute,
+  matchMediaRoute,
+  matchPlayerRoute,
   matchRoomRoute,
   resolveRoute,
   resolveRouteFromDeepLink,
@@ -72,5 +75,72 @@ describe("matchRoomRoute", () => {
     expect(matchRoomRoute("#/login")).toBeNull();
     expect(matchRoomRoute("#/room/bad")).toBeNull();
     expect(matchRoomRoute("#/room/ABCD2345/extra")).toBeNull();
+  });
+});
+
+describe("matchMediaRoute", () => {
+  it("extracts the media id from #/media/:id", () => {
+    expect(matchMediaRoute("#/media/42")).toBe("42");
+    expect(matchMediaRoute("#/media/abc-123")).toBe("abc-123");
+    expect(matchMediaRoute("#/media/9")).toBe("9");
+  });
+
+  it("returns null for non-media or invalid routes", () => {
+    expect(matchMediaRoute("#/")).toBeNull();
+    expect(matchMediaRoute("#/media")).toBeNull();
+    expect(matchMediaRoute("#/media/")).toBeNull();
+    expect(matchMediaRoute("#/media/1/2")).toBeNull();
+    expect(matchMediaRoute("#/library")).toBeNull();
+    expect(matchMediaRoute("#/room/ABCD2345")).toBeNull();
+  });
+});
+
+describe("matchPlayerRoute", () => {
+  it("extracts the file id from #/player/:fileId", () => {
+    expect(matchPlayerRoute("#/player/77")).toBe("77");
+    expect(matchPlayerRoute("#/player/file-1")).toBe("file-1");
+  });
+
+  it("returns null for non-player or invalid routes", () => {
+    expect(matchPlayerRoute("#/")).toBeNull();
+    expect(matchPlayerRoute("#/player")).toBeNull();
+    expect(matchPlayerRoute("#/player/1/2")).toBeNull();
+    expect(matchPlayerRoute("#/media/1")).toBeNull();
+  });
+});
+
+describe("ROUTES builders", () => {
+  it("builds nested hash paths", () => {
+    expect(ROUTES.media(5)).toBe("#/media/5");
+    expect(ROUTES.player(9)).toBe("#/player/9");
+    expect(ROUTES.room("ABCD2345")).toBe("#/room/ABCD2345");
+  });
+
+  it("exposes the static shell destinations", () => {
+    expect(ROUTES.home).toBe("#/");
+    expect(ROUTES.login).toBe("#/login");
+    expect(ROUTES.library).toBe("#/library");
+    expect(ROUTES.tasks).toBe("#/tasks");
+    expect(ROUTES.history).toBe("#/history");
+    expect(ROUTES.settings).toBe("#/settings");
+    expect(ROUTES.account).toBe("#/account");
+  });
+});
+
+describe("isFullBleedRoute", () => {
+  it("is true for player and room (no left nav)", () => {
+    expect(isFullBleedRoute("#/player/12")).toBe(true);
+    expect(isFullBleedRoute("#/room/ABCD2345")).toBe(true);
+  });
+
+  it("is false for shell and auth-gate routes", () => {
+    expect(isFullBleedRoute("#/")).toBe(false);
+    expect(isFullBleedRoute("#/login")).toBe(false);
+    expect(isFullBleedRoute("#/library")).toBe(false);
+    expect(isFullBleedRoute("#/media/1")).toBe(false);
+    expect(isFullBleedRoute("#/settings")).toBe(false);
+    expect(isFullBleedRoute("#/account")).toBe(false);
+    expect(isFullBleedRoute("#/tasks")).toBe(false);
+    expect(isFullBleedRoute("#/history")).toBe(false);
   });
 });

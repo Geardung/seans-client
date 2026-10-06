@@ -1,21 +1,15 @@
-import { EmptySlot, ErrorSlot, LoadingSlot, Screen } from "../design/slots";
+import { Screen } from "../design/slots";
+import { SearchPanel } from "../features/search";
 
-/** Home placeholder (M1). Catalog/search land in later milestones. */
+/** Home: catalog search with debounced input and poster grid (M4). */
 export function HomeScreen() {
   return (
     <Screen title="Seans">
       <p className="lede">
-        Домашняя страница. Поиск фильмов и каталог появятся позже.
+        Найдите фильм или сериал и откройте его страницу, чтобы посмотреть
+        описание и отзывы.
       </p>
-      <LoadingSlot label="Загрузка каталога…" />
-      <EmptySlot
-        title="Каталог пуст"
-        description="Фильмы появятся здесь после подключения к сервису."
-      />
-      <ErrorSlot
-        title="Не удалось загрузить каталог"
-        description="Проверьте подключение к интернету и повторите попытку."
-      />
+      <SearchPanel />
     </Screen>
   );
 }
